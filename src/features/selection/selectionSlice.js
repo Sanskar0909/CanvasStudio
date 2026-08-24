@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { shapesDeleted } from "../shapes/shapesSlice";
 
 const selectionsSlice = createSlice({
     name: "selections",
@@ -9,9 +10,14 @@ const selectionsSlice = createSlice({
         shapeSelected: (state, action) => {
             state.selectedIds = [action.payload]
         },
-        selectionCleared: (state, action) => {
+        selectionCleared: (state) => {
             state.selectedIds = []
         }
+    },
+    extraReducers: (builder) => {
+        builder.addCase(shapesDeleted, (state, action) => {
+            state.selectedIds = state.selectedIds.filter((id) => !action.payload.includes(id));
+        })
     }
 })
 

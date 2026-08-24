@@ -9,9 +9,12 @@ const shapesSlice = createSlice({
     reducers: {
         shapeAdded: (state, action) => {
             state.push(action.payload);
+        },
+        shapesDeleted: (state, action) => {
+            return state.filter((shape) => !action.payload.includes(shape.id))
         }
     }
 })
 
-export const { shapeAdded } = shapesSlice.actions
+export const { shapeAdded, shapesDeleted } = shapesSlice.actions
 export default shapesSlice.reducer

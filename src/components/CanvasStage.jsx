@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { shapeSelected, selectionCleared } from "../features/selection/selectionSlice";
+import { shapesDeleted } from "../features/shapes/shapesSlice";
 
 export default function CanvasStage(){
     const shapes = useAppSelector((state) => state.shapes);
@@ -9,6 +11,19 @@ export default function CanvasStage(){
     const isShapeSelected = (id) => {
         return selectedIds.includes(id);
     }
+
+    useEffect(() => {
+        function handleKeyDown(e) {
+            if(e.key == 'Delete' || e.key == 'Backspace') {
+                if(selectedIds.length > 0)
+                    dispatch(shapesDeleted([...selectedIds]))
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedIds])
 
     return <svg onClick={() => dispatch(selectionCleared())}>
         {shapes.map((shape) => (
