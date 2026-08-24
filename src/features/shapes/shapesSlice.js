@@ -7,8 +7,11 @@ const shapesSlice = createSlice({
         {"id": "r2", "x": 200, "y": 200, "height": 100, "width": 100, "fill": "red"}
     ],
     reducers: {
-
+        shapeAdded: (state, action) => {
+            state.push(action.payload);
+        }
     }
 })
 
+export const { shapeAdded } = shapesSlice.actions
 export default shapesSlice.reducer

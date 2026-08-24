@@ -6,13 +6,14 @@
 //
 
 import CanvasStage from "./components/CanvasStage";
+import Toolbar from "./components/Toolbar";
 
 // Replace each placeholder as that component lands.
 export default function App() {
   return (
     <div className="app">
       <header className="toolbar">
-        <span className="placeholder">Toolbar goes here</span>
+        <Toolbar />
       </header>
 
       <main className="stage">
