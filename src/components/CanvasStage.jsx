@@ -2,13 +2,17 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { shapeSelected, selectionCleared } from "../features/selection/selectionSlice";
 import { shapeMoved, shapesDeleted } from "../features/shapes/shapesSlice";
+import { panned } from "../features/viewport/viewportSlice";
 
 export default function CanvasStage(){
     const shapes = useAppSelector((state) => state.shapes);
     const selectedIds = useAppSelector((state) => state.selections.selectedIds);
+    const viewport = useAppSelector((state) => state.viewport);
+
     const dispatch = useAppDispatch();
 
     const [drag, setDrag] = useState(null);
+    const [pan, setPan] = useState(null);
 
     function handlePointerDown(e, shape) {
         e.stopPropagation();
@@ -58,34 +62,53 @@ export default function CanvasStage(){
 
     return <svg 
                 onClick={() => dispatch(selectionCleared())}
-                onPointerMove={(e) => handlePointerMove(e)}
-                onPointerUp={handlePointerUp}
-            >
-        {shapes.map((shape) => {
-
-            const isDragging = drag?.id === shape.id;
-            const x = isDragging ? shape.x + drag.dx : shape.x;
-            const y = isDragging ? shape.y + drag.dy : shape.y;
-
-            return <rect 
-                key={shape.id}
-                x={x}
-                y={y}
-                height={shape.height}
-                width={shape.width}
-                fill={shape.fill}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    dispatch(shapeSelected(shape.id))
+                onPointerMove={(e) => {
+                    handlePointerMove(e)
+                    if(pan != null) {
+                        setPan({...pan, dx: e.clientX - pan.pointerStartX, dy: e.clientY - pan.pointerStartY})
+                    }
                 }}
-                stroke={isShapeSelected(shape.id) ? "white" : null}
-                strokeWidth={isShapeSelected(shape.id) ? 2 : 0}
+                onPointerUp={() => {
+                    handlePointerUp();
+                    if(!pan)    return;
+                    dispatch(panned({
+                        dx: pan.dx,
+                        dy: pan.dy
+                    }));
+                    setPan(null);
+                }}
                 onPointerDown={(e) => {
                     e.currentTarget.setPointerCapture(e.pointerId);
-                    handlePointerDown(e, shape)
+                    setPan({dx: 0, dy: 0, pointerStartX: e.clientX, pointerStartY: e.clientY});
                 }}
-            />
-        }
-        )}
+            >
+            <g transform={`translate(${viewport.x + (pan?.dx ?? 0)}, ${viewport.y + (pan?.dy ?? 0)})`}>
+                {shapes.map((shape) => {
+
+                    const isDragging = drag?.id === shape.id;
+                    const x = isDragging ? shape.x + drag.dx : shape.x;
+                    const y = isDragging ? shape.y + drag.dy : shape.y;
+
+                    return <rect 
+                        key={shape.id}
+                        x={x}
+                        y={y}
+                        height={shape.height}
+                        width={shape.width}
+                        fill={shape.fill}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            dispatch(shapeSelected(shape.id))
+                        }}
+                        stroke={isShapeSelected(shape.id) ? "white" : null}
+                        strokeWidth={isShapeSelected(shape.id) ? 2 : 0}
+                        onPointerDown={(e) => {
+                            e.currentTarget.setPointerCapture(e.pointerId);
+                            handlePointerDown(e, shape)
+                        }}
+                    />
+                }
+                )}
+            </g>
     </svg>
 }

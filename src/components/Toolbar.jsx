@@ -1,6 +1,7 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { useAppDispatch } from "../app/hooks";
 import { shapeAdded } from "../features/shapes/shapesSlice";
+import { panned } from "../features/viewport/viewportSlice";
 
 export default function Toolbar() {
     const dispatch = useAppDispatch();
@@ -18,5 +19,16 @@ export default function Toolbar() {
         )
     }
 
-    return <button onClick={handleAddRect}>Add Rectangle</button>
+    function handleViewportChange() {
+        dispatch(panned({
+            dx: 10,
+            dy: 10
+        }))
+    }
+
+    return (<>
+        <button onClick={handleAddRect}>Add Rectangle</button>
+        <button onClick={handleViewportChange}>change viewport x, y</button>
+        </>
+    )
 }
