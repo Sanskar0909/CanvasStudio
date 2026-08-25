@@ -12,9 +12,16 @@ const shapesSlice = createSlice({
         },
         shapesDeleted: (state, action) => {
             return state.filter((shape) => !action.payload.includes(shape.id))
+        },
+        shapeMoved: (state, action) => {
+            const shape = state.find((s) => s.id === action.payload.id)
+            if(!shape)  return;
+
+            shape.x = action.payload.x;
+            shape.y = action.payload.y;
         }
     }
 })
 
-export const { shapeAdded, shapesDeleted } = shapesSlice.actions
+export const { shapeAdded, shapesDeleted, shapeMoved } = shapesSlice.actions
 export default shapesSlice.reducer
